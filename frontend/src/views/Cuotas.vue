@@ -197,6 +197,9 @@ onMounted(load)
         <td>
           <strong>{{ c.alumno?.apellido }}, {{ c.alumno?.nombre }}</strong>
           <div style="font-size:11px;color:var(--muted)">DNI: {{ c.alumno?.dni }}</div>
+          <div v-if="c.disciplinas?.length" class="chip-group" style="margin-top:6px">
+            <span v-for="d in c.disciplinas" :key="d.id" class="chip">{{ d.nombre }}</span>
+          </div>
         </td>
         <td>{{ nombreMes(c.mes) }} {{ c.anio }}</td>
         <td><strong>{{ formatARS(c.monto) }}</strong></td>

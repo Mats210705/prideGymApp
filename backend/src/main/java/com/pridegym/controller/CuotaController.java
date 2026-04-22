@@ -22,8 +22,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cuotas")
@@ -105,6 +107,8 @@ public class CuotaController {
             c.setMonto(monto);
             c.setFechaVencimiento(venc);
             c.setEstado(EstadoCuota.PENDIENTE);
+            // Snapshot de las disciplinas actuales del alumno (histórico real)
+            c.setDisciplinas(new HashSet<>(a.getDisciplinas()));
             creadas.add(cuotaRepo.save(c));
         }
 
@@ -179,10 +183,10 @@ public class CuotaController {
             titleFont.setFontHeightInPoints((short) 14);
             titleStyle.setFont(titleFont);
             titleCell.setCellStyle(titleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 8));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
 
             // Headers
-            String[] headers = {"Apellido", "Nombre", "DNI", "Periodo", "Monto",
+            String[] headers = {"Apellido", "Nombre", "DNI", "Periodo", "Disciplinas", "Monto",
                                 "Vencimiento", "Estado", "Fecha de pago", "Metodo de pago"};
             Row headerRow = sheet.createRow(2);
             for (int i = 0; i < headers.length; i++) {
@@ -205,16 +209,24 @@ public class CuotaController {
                 row.createCell(2).setCellValue(a != null ? a.getDni() : "");
                 row.createCell(3).setCellValue(meses[c.getMes() - 1] + " " + c.getAnio());
 
-                Cell montoCell = row.createCell(4);
+                String discs = c.getDisciplinas() != null && !c.getDisciplinas().isEmpty()
+                        ? c.getDisciplinas().stream()
+                              .map(Disciplina::getNombre)
+                              .sorted()
+                              .collect(Collectors.joining(", "))
+                        : "";
+                row.createCell(4).setCellValue(discs);
+
+                Cell montoCell = row.createCell(5);
                 montoCell.setCellValue(c.getMonto() != null ? c.getMonto().doubleValue() : 0);
                 montoCell.setCellStyle(moneyStyle);
 
-                row.createCell(5).setCellValue(c.getFechaVencimiento() != null
+                row.createCell(6).setCellValue(c.getFechaVencimiento() != null
                         ? c.getFechaVencimiento().format(df) : "");
-                row.createCell(6).setCellValue(c.getEstado() != null ? c.getEstado().name() : "");
-                row.createCell(7).setCellValue(c.getFechaPago() != null
+                row.createCell(7).setCellValue(c.getEstado() != null ? c.getEstado().name() : "");
+                row.createCell(8).setCellValue(c.getFechaPago() != null
                         ? c.getFechaPago().format(df) : "");
-                row.createCell(8).setCellValue(c.getMetodoPago() != null
+                row.createCell(9).setCellValue(c.getMetodoPago() != null
                         ? c.getMetodoPago().name() : "");
 
                 if (c.getMonto() != null) totalMonto = totalMonto.add(c.getMonto());
@@ -231,18 +243,18 @@ public class CuotaController {
             // Totales
             rowIdx++;
             Row totalRow = sheet.createRow(rowIdx++);
-            Cell labelCell = totalRow.createCell(3);
+            Cell labelCell = totalRow.createCell(4);
             labelCell.setCellValue("TOTAL FILTRADO:");
             labelCell.setCellStyle(totalLabelStyle);
-            Cell totalCell = totalRow.createCell(4);
+            Cell totalCell = totalRow.createCell(5);
             totalCell.setCellValue(totalMonto.doubleValue());
             totalCell.setCellStyle(totalStyle);
 
             Row cobradoRow = sheet.createRow(rowIdx++);
-            Cell cobLabel = cobradoRow.createCell(3);
+            Cell cobLabel = cobradoRow.createCell(4);
             cobLabel.setCellValue("YA COBRADO:");
             cobLabel.setCellStyle(totalLabelStyle);
-            Cell cobVal = cobradoRow.createCell(4);
+            Cell cobVal = cobradoRow.createCell(5);
             cobVal.setCellValue(totalPagado.doubleValue());
             cobVal.setCellStyle(totalStyle);
 

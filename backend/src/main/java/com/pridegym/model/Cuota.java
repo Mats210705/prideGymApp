@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "cuotas")
@@ -42,6 +44,16 @@ public class Cuota {
     @Column(length = 500)
     private String observaciones;
 
+    // Snapshot de las disciplinas que el alumno tenia al momento de generar la cuota.
+    // Se guardan para preservar el historico aunque despues el alumno cambie de disciplinas.
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "cuota_disciplina",
+        joinColumns = @JoinColumn(name = "cuota_id"),
+        inverseJoinColumns = @JoinColumn(name = "disciplina_id")
+    )
+    private Set<Disciplina> disciplinas = new HashSet<>();
+
     public Cuota() {}
 
     public Long getId() { return id; }
@@ -73,4 +85,7 @@ public class Cuota {
 
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+
+    public Set<Disciplina> getDisciplinas() { return disciplinas; }
+    public void setDisciplinas(Set<Disciplina> disciplinas) { this.disciplinas = disciplinas; }
 }

@@ -96,6 +96,7 @@ public class DataLoader implements CommandLineRunner {
                     cuotaAnterior.setFechaPago(LocalDate.of(anioAnterior, mesAnterior, 8));
                     cuotaAnterior.setEstado(EstadoCuota.PAGADA);
                     cuotaAnterior.setMetodoPago(MetodoPago.EFECTIVO);
+                    cuotaAnterior.setDisciplinas(new HashSet<>(a.getDisciplinas()));
                     cuotaRepo.save(cuotaAnterior);
 
                     // Cuota mes actual
@@ -105,6 +106,7 @@ public class DataLoader implements CommandLineRunner {
                     cuotaActual.setAnio(anioActual);
                     cuotaActual.setMonto(monto);
                     cuotaActual.setFechaVencimiento(LocalDate.of(anioActual, mesActual, 10));
+                    cuotaActual.setDisciplinas(new HashSet<>(a.getDisciplinas()));
 
                     // 4 pagadas, 4 pendientes
                     if (a.getId() % 2 == 0) {
