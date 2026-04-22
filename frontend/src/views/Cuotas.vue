@@ -89,6 +89,36 @@ async function eliminar(id) {
   await load()
 }
 
+async function descargarExcel() {
+  const params = {}
+  if (filtroMes.value) params.mes = filtroMes.value
+  if (filtroAnio.value) params.anio = filtroAnio.value
+  if (filtroEstado.value) params.estado = filtroEstado.value
+  if (filtroTexto.value && filtroTexto.value.trim()) params.texto = filtroTexto.value.trim()
+
+  const { data, headers } = await http.get('/cuotas/export', {
+    params,
+    responseType: 'blob'
+  })
+
+  // Extraer nombre del archivo del header Content-Disposition
+  let fileName = 'cuotas.xlsx'
+  const cd = headers['content-disposition']
+  if (cd) {
+    const match = cd.match(/filename="?([^"]+)"?/)
+    if (match) fileName = match[1]
+  }
+
+  const url = window.URL.createObjectURL(new Blob([data]))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 async function generarCuotasMes() {
   const body = { ...generarForm.value }
   if (!body.fechaVencimiento) body.fechaVencimiento = null
@@ -130,6 +160,9 @@ onMounted(load)
     </select>
     <button class="secondary" @click="limpiarFiltros" title="Limpiar filtros">Limpiar</button>
     <div class="spacer"></div>
+    <button class="success" @click="descargarExcel" title="Descargar Excel con los filtros actuales">
+      Descargar Excel
+    </button>
     <button @click="showGenerar = true">Generar cuotas del mes</button>
   </div>
 
