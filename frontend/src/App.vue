@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,10 +11,21 @@ const user = computed(() => {
   return raw ? JSON.parse(raw) : null
 })
 
+const mobileMenuOpen = ref(false)
+
+// Cerrar menu mobile al navegar
+watch(() => route.fullPath, () => {
+  mobileMenuOpen.value = false
+})
+
 function logout() {
   localStorage.removeItem('pridegym_token')
   localStorage.removeItem('pridegym_user')
   router.push({ name: 'login' })
+}
+
+function closeMenu() {
+  mobileMenuOpen.value = false
 }
 </script>
 
@@ -23,16 +34,34 @@ function logout() {
     <RouterView />
   </div>
   <div v-else class="app-layout">
-    <aside class="sidebar">
+    <!-- Topbar mobile -->
+    <header class="mobile-topbar">
+      <button class="hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="mobile-brand">
+        <strong>PRIDE GYM</strong>
+        <span>Resistencia</span>
+      </div>
+    </header>
+
+    <!-- Overlay mobile -->
+    <div
+      v-if="mobileMenuOpen"
+      class="sidebar-overlay"
+      @click="closeMenu"
+    ></div>
+
+    <aside class="sidebar" :class="{ open: mobileMenuOpen }">
       <div class="brand">
         <h1>PRIDE GYM</h1>
         <div class="sub">Resistencia</div>
       </div>
       <nav class="nav">
-        <RouterLink to="/dashboard" active-class="active">Dashboard</RouterLink>
-        <RouterLink to="/alumnos" active-class="active">Alumnos</RouterLink>
-        <RouterLink to="/disciplinas" active-class="active">Disciplinas</RouterLink>
-        <RouterLink to="/cuotas" active-class="active">Cuotas</RouterLink>
+        <RouterLink to="/dashboard" active-class="active" @click="closeMenu">Dashboard</RouterLink>
+        <RouterLink to="/alumnos" active-class="active" @click="closeMenu">Alumnos</RouterLink>
+        <RouterLink to="/disciplinas" active-class="active" @click="closeMenu">Disciplinas</RouterLink>
+        <RouterLink to="/cuotas" active-class="active" @click="closeMenu">Cuotas</RouterLink>
       </nav>
       <div class="sidebar-footer">
         <div>{{ user?.nombre || user?.username }}</div>
