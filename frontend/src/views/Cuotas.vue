@@ -8,6 +8,8 @@ const loading = ref(true)
 const filtroEstado = ref('')
 const filtroMes = ref('')
 const filtroAnio = ref(new Date().getFullYear())
+const filtroTexto = ref('')
+let debounceTimer = null
 
 const showPago = ref(false)
 const cuotaSeleccionada = ref(null)
@@ -30,11 +32,25 @@ async function load() {
     if (filtroMes.value) params.mes = filtroMes.value
     if (filtroAnio.value) params.anio = filtroAnio.value
     if (filtroEstado.value) params.estado = filtroEstado.value
+    if (filtroTexto.value && filtroTexto.value.trim()) params.texto = filtroTexto.value.trim()
     const { data } = await http.get('/cuotas', { params })
     cuotas.value = data
   } finally {
     loading.value = false
   }
+}
+
+function loadDebounced() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(load, 300)
+}
+
+function limpiarFiltros() {
+  filtroMes.value = ''
+  filtroAnio.value = new Date().getFullYear()
+  filtroEstado.value = ''
+  filtroTexto.value = ''
+  load()
 }
 
 const totalFiltrado = computed(() =>
@@ -92,11 +108,18 @@ onMounted(load)
   <h2>Cuotas</h2>
 
   <div class="toolbar">
+    <input
+      v-model="filtroTexto"
+      @input="loadDebounced"
+      placeholder="Buscar alumno (nombre, apellido, DNI)..."
+      style="max-width:280px"
+    />
     <select v-model="filtroMes" @change="load" style="max-width:160px">
       <option value="">Todos los meses</option>
       <option v-for="(m, i) in MESES" :key="i" :value="i + 1">{{ m }}</option>
     </select>
-    <select v-model="filtroAnio" @change="load" style="max-width:110px">
+    <select v-model="filtroAnio" @change="load" style="max-width:140px">
+      <option value="">Todos los años</option>
       <option v-for="a in anios" :key="a" :value="a">{{ a }}</option>
     </select>
     <select v-model="filtroEstado" @change="load" style="max-width:160px">
@@ -105,8 +128,9 @@ onMounted(load)
       <option value="PAGADA">Pagadas</option>
       <option value="VENCIDA">Vencidas</option>
     </select>
+    <button class="secondary" @click="limpiarFiltros" title="Limpiar filtros">Limpiar</button>
     <div class="spacer"></div>
-    <button class="secondary" @click="showGenerar = true">Generar cuotas del mes</button>
+    <button @click="showGenerar = true">Generar cuotas del mes</button>
   </div>
 
   <div class="grid grid-2" style="margin-bottom:20px">

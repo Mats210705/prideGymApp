@@ -32,12 +32,11 @@ public class CuotaController {
     @GetMapping
     public List<Cuota> list(@RequestParam(required = false) Integer mes,
                             @RequestParam(required = false) Integer anio,
-                            @RequestParam(required = false) EstadoCuota estado) {
+                            @RequestParam(required = false) EstadoCuota estado,
+                            @RequestParam(required = false) String texto) {
         actualizarVencidas();
-        if (mes != null && anio != null) return cuotaRepo.findByMesAndAnio(mes, anio);
-        if (anio != null) return cuotaRepo.findByAnioOrderByMesDesc(anio);
-        if (estado != null) return cuotaRepo.findByEstado(estado);
-        return cuotaRepo.findAll();
+        String textoNorm = (texto != null && !texto.isBlank()) ? texto.trim() : null;
+        return cuotaRepo.findFiltered(mes, anio, estado, textoNorm);
     }
 
     @GetMapping("/{id}")
