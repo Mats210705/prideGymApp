@@ -62,6 +62,7 @@ function closeMenu() {
         <RouterLink to="/alumnos" active-class="active" @click="closeMenu">Alumnos</RouterLink>
         <RouterLink to="/disciplinas" active-class="active" @click="closeMenu">Disciplinas</RouterLink>
         <RouterLink to="/cuotas" active-class="active" @click="closeMenu">Cuotas</RouterLink>
+        <RouterLink to="/rutinas" active-class="active" @click="closeMenu">Rutinas</RouterLink>
       </nav>
       <div class="sidebar-footer">
         <div>{{ user?.nombre || user?.username }}</div>

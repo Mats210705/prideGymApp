@@ -4,6 +4,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Alumnos from '../views/Alumnos.vue'
 import Disciplinas from '../views/Disciplinas.vue'
 import Cuotas from '../views/Cuotas.vue'
+import Rutinas from '../views/Rutinas.vue'
 
 const routes = [
   { path: '/login', name: 'login', component: Login, meta: { public: true } },
@@ -11,7 +12,8 @@ const routes = [
   { path: '/dashboard', name: 'dashboard', component: Dashboard },
   { path: '/alumnos', name: 'alumnos', component: Alumnos },
   { path: '/disciplinas', name: 'disciplinas', component: Disciplinas },
-  { path: '/cuotas', name: 'cuotas', component: Cuotas }
+  { path: '/cuotas', name: 'cuotas', component: Cuotas },
+  { path: '/rutinas', name: 'rutinas', component: Rutinas }
 ]
 
 const router = createRouter({

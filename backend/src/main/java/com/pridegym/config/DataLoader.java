@@ -4,6 +4,7 @@ import com.pridegym.model.*;
 import com.pridegym.repository.AlumnoRepository;
 import com.pridegym.repository.CuotaRepository;
 import com.pridegym.repository.DisciplinaRepository;
+import com.pridegym.repository.RutinaRepository;
 import com.pridegym.repository.UsuarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,17 +25,20 @@ public class DataLoader implements CommandLineRunner {
     private final DisciplinaRepository disciplinaRepo;
     private final AlumnoRepository alumnoRepo;
     private final CuotaRepository cuotaRepo;
+    private final RutinaRepository rutinaRepo;
     private final PasswordEncoder passwordEncoder;
 
     public DataLoader(UsuarioRepository usuarioRepo,
                       DisciplinaRepository disciplinaRepo,
                       AlumnoRepository alumnoRepo,
                       CuotaRepository cuotaRepo,
+                      RutinaRepository rutinaRepo,
                       PasswordEncoder passwordEncoder) {
         this.usuarioRepo = usuarioRepo;
         this.disciplinaRepo = disciplinaRepo;
         this.alumnoRepo = alumnoRepo;
         this.cuotaRepo = cuotaRepo;
+        this.rutinaRepo = rutinaRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -118,8 +124,82 @@ public class DataLoader implements CommandLineRunner {
                     }
                     cuotaRepo.save(cuotaActual);
                 }
+
+                // Rutinas demo
+                if (rutinaRepo.count() == 0) {
+                    // Rutina generica de boxeo - principiante
+                    Rutina rBoxPrinc = new Rutina();
+                    rBoxPrinc.setNombre("Boxeo Principiante - Tecnica Basica");
+                    rBoxPrinc.setDescripcion("Rutina introductoria para alumnos nuevos. Enfoque en postura, jab y guardia.");
+                    rBoxPrinc.setNivel(NivelRutina.PRINCIPIANTE);
+                    rBoxPrinc.setDisciplina(boxeo);
+                    rBoxPrinc.setEjercicios(new ArrayList<>(Arrays.asList(
+                            crearEjercicio(1, "Saltar soga", 3, "3 min", "60s", "Calentamiento inicial"),
+                            crearEjercicio(2, "Shadow boxing - jab y guardia", 5, "2 min", "60s", "Foco en postura y pie adelantado"),
+                            crearEjercicio(3, "Sacos - jab directo", 4, "2 min", "90s", "Mantener guardia alta"),
+                            crearEjercicio(4, "Abdominales", 3, "20", "45s", "Crunch tradicional"),
+                            crearEjercicio(5, "Plancha", 3, "45 seg", "30s", "Core activado")
+                    )));
+                    rutinaRepo.save(rBoxPrinc);
+
+                    // Rutina de MMA - intermedio
+                    Rutina rMmaInt = new Rutina();
+                    rMmaInt.setNombre("MMA Intermedio - Combinaciones");
+                    rMmaInt.setDescripcion("Trabajo de combinaciones de golpeo con transicion a clinch y derribo.");
+                    rMmaInt.setNivel(NivelRutina.INTERMEDIO);
+                    rMmaInt.setDisciplina(mma);
+                    rMmaInt.setEjercicios(new ArrayList<>(Arrays.asList(
+                            crearEjercicio(1, "Movilidad articular general", 1, "10 min", "-", "Hombros, cadera, rodillas"),
+                            crearEjercicio(2, "Shadow - 1-2-codo-rodilla", 5, "3 min", "60s", "Fluidez en la combinacion"),
+                            crearEjercicio(3, "Sacos - combinaciones + derribo sombra", 6, "3 min", "90s", "Cambio de nivel realista"),
+                            crearEjercicio(4, "Burpees", 4, "15", "45s", "Sin pausa entre reps"),
+                            crearEjercicio(5, "Sprawls", 4, "20", "45s", "Explosivo, cadera al piso")
+                    )));
+                    rutinaRepo.save(rMmaInt);
+
+                    // Rutina personalizada - asignada a un alumno
+                    Rutina rPersonalizada = new Rutina();
+                    rPersonalizada.setNombre("Plan semanal - " + a5.getApellido());
+                    rPersonalizada.setDescripcion("Plan de acondicionamiento personalizado con foco en resistencia.");
+                    rPersonalizada.setNivel(NivelRutina.AVANZADO);
+                    rPersonalizada.setDisciplina(funcional);
+                    rPersonalizada.setAlumno(a5);
+                    rPersonalizada.setEjercicios(new ArrayList<>(Arrays.asList(
+                            crearEjercicio(1, "Remo ergometro", 1, "2000 m", "-", "Ritmo moderado"),
+                            crearEjercicio(2, "Sentadilla con barra", 5, "5", "2 min", "80% 1RM"),
+                            crearEjercicio(3, "Peso muerto", 5, "5", "2 min", "Tecnica primero"),
+                            crearEjercicio(4, "Dominadas", 4, "Al fallo", "90s", "Asistidas si es necesario"),
+                            crearEjercicio(5, "Sprint intervalos", 8, "30 seg", "30s", "Maxima intensidad")
+                    )));
+                    rutinaRepo.save(rPersonalizada);
+
+                    // Rutina generica de BJJ - principiante
+                    Rutina rBjj = new Rutina();
+                    rBjj.setNombre("BJJ Principiante - Guardia cerrada");
+                    rBjj.setDescripcion("Drills tecnicos basicos desde la guardia cerrada.");
+                    rBjj.setNivel(NivelRutina.PRINCIPIANTE);
+                    rBjj.setDisciplina(bjj);
+                    rBjj.setEjercicios(new ArrayList<>(Arrays.asList(
+                            crearEjercicio(1, "Movilidad de cadera - shrimp", 3, "10 m", "30s", "Tecnica lenta"),
+                            crearEjercicio(2, "Drill - armbar desde guardia", 4, "10", "60s", "Cada lado"),
+                            crearEjercicio(3, "Drill - triangulo desde guardia", 4, "10", "60s", "Cerrar el angulo"),
+                            crearEjercicio(4, "Rolling tecnico", 3, "5 min", "2 min", "Sin ganar, solo fluidez")
+                    )));
+                    rutinaRepo.save(rBjj);
+                }
             }
         }
+    }
+
+    private Ejercicio crearEjercicio(int orden, String nombre, int series, String reps, String descanso, String notas) {
+        Ejercicio e = new Ejercicio();
+        e.setOrden(orden);
+        e.setNombre(nombre);
+        e.setSeries(series);
+        e.setRepeticiones(reps);
+        e.setDescanso(descanso);
+        e.setNotas(notas);
+        return e;
     }
 
     private Alumno crearAlumno(String nombre, String apellido, String dni, String email, String tel,
